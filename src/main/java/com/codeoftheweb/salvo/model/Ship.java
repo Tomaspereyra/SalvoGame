@@ -1,6 +1,7 @@
 package com.codeoftheweb.salvo.model;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Entity
 public class Ship {
@@ -9,14 +10,39 @@ public class Ship {
     private Integer id;
     private String type;
     @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name="gamePlayerID")
     private GamePlayer gamePlayer;
+    @ElementCollection
+    @Column(name="location")
+    private List<ShipLocations> locationsList;
 
     public Ship(Integer id, GamePlayer gamePlayer) {
         this.id = id;
         this.gamePlayer = gamePlayer;
     }
 
+    public Ship(String type, GamePlayer gamePlayer) {
+        this.type = type;
+        this.gamePlayer = gamePlayer;
+    }
+
     public Ship() {
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public List<ShipLocations> getLocationsList() {
+        return locationsList;
+    }
+
+    public void setLocationsList(List<ShipLocations> locationsList) {
+        this.locationsList = locationsList;
     }
 
     public Integer getId() {
@@ -38,8 +64,8 @@ public class Ship {
     @Override
     public String toString() {
         return "Ship{" +
-                "id=" + id +
-                ", gamePlayer=" + gamePlayer +
+                "type='" + type + '\'' +
+                ", locationsList=" + locationsList +
                 '}';
     }
 }

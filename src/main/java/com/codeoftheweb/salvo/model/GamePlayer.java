@@ -5,6 +5,7 @@ import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -23,7 +24,7 @@ public class GamePlayer {
 
     private Date date;
     @OneToMany(mappedBy = "gamePlayer", cascade = CascadeType.MERGE)
-    private Set<Ship> ships;
+    private List<Ship> ships;//Pasar a Set despues de las pruebas
 
     public GamePlayer() {
     }
@@ -35,17 +36,24 @@ public class GamePlayer {
         this.date = date;
     }
     public GamePlayer( Game game, Player player, Date date) {
-        this.id = id;
+
         this.game = game;
         this.player = player;
         this.date = date;
     }
 
-    public Set<Ship> getShips() {
+    public GamePlayer(Game game, Player player, Date date, List<Ship> ships) {
+        this.game = game;
+        this.player = player;
+        this.date = date;
+        this.ships = ships;
+    }
+
+    public List<Ship> getShips() {
         return ships;
     }
 
-    public void setShips(Set<Ship> ships) {
+    public void setShips(List<Ship> ships) {
         this.ships = ships;
     }
 
@@ -81,13 +89,15 @@ public class GamePlayer {
         this.date = date;
     }
 
+
     @Override
     public String toString() {
         return "GamePlayer{" +
                 "id=" + id +
-                ", game=" + game +
+
                 ", player=" + player +
                 ", date=" + date +
+                ", ships=" + ships +
                 '}';
     }
 }

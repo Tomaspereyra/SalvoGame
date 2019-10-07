@@ -2,9 +2,12 @@ package com.codeoftheweb.salvo.RestController;
 
 import com.codeoftheweb.salvo.model.Game;
 import com.codeoftheweb.salvo.model.GamePlayer;
+import com.codeoftheweb.salvo.model.Ship;
+import com.codeoftheweb.salvo.repository.GamePlayerRepository;
 import com.codeoftheweb.salvo.repository.GameRepository;
 import com.codeoftheweb.salvo.repository.PlayerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -17,9 +20,10 @@ public class SalvoController {
 
     @Autowired
     private GameRepository gameRepository;
-
     @Autowired
     private PlayerRepository playerRepository;
+    @Autowired
+    private GamePlayerRepository gamePlayerRepository;
 
     @RequestMapping("/games")
     public List<Map<String,Object>> getIds(){
@@ -49,6 +53,38 @@ public class SalvoController {
         }
         return gamesMap;
 
+
+    }
+    @RequestMapping("/game_view/{id}")
+    public Map<String,Object> getGameView(@PathVariable Integer id){
+        Game game = this.gameRepository.getOne(id);
+        Map<String,Object> gameMap= new LinkedHashMap<>(); // ordena los elementos segun se van cargando
+        gameMap.put("id",game.getId());
+        gameMap.put("created",game.getCreationDate());
+        List<Map<String,Object>>gamePlayersList  = new ArrayList<>(); // lista para los GamePlayers
+        List<Map<String,Object>> shipsList = new ArrayList<>();
+        for(GamePlayer gamePlayer:game.getGamePlayers()){
+            Map<String,Object> gamePlayerMap = new HashMap<>(); //map para cada game Player
+            gamePlayerMap.put("id",gamePlayer.getId());
+            Map<String,Object> playerMap = new HashMap<>();
+            playerMap.put("id",gamePlayer.getPlayer().getId());
+            playerMap.put("email",gamePlayer.getPlayer().getEmailAddress());
+            gamePlayerMap.put("player",playerMap);
+            gamePlayersList.add(gamePlayerMap); // lo agrego a la lista
+            /* mappeo ships */
+            for(Ship ship :gamePlayer.getShips()){
+                Map<String,Object> shipMap = new HashMap<>();
+                shipMap.put("type", ship.getType());
+                shipMap.put("locations",ship.getLocationsList());
+                shipsList.add(shipMap);
+            }
+
+        }
+        gameMap.put("gamePlayers",gamePlayersList); // lo agrego al map general
+        gameMap.put("ships",shipsList);
+        System.out.println(gameRepository.getOne(1));
+        System.out.println(gamePlayerRepository.getOne(1));
+        return gameMap;
 
     }
 }
