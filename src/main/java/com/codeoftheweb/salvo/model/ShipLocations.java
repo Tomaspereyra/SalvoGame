@@ -7,6 +7,14 @@ public class ShipLocations {
 
     private String cell;
 
+    public ShipLocations(String cell) {
+        this.cell = cell;
+    }
+    public ShipLocations() {
+
+    }
+
+
     public String getCell() {
         return cell;
     }

@@ -1,9 +1,6 @@
 package com.codeoftheweb.salvo;
 
-import com.codeoftheweb.salvo.model.Game;
-import com.codeoftheweb.salvo.model.GamePlayer;
-import com.codeoftheweb.salvo.model.Player;
-import com.codeoftheweb.salvo.model.Ship;
+import com.codeoftheweb.salvo.model.*;
 import com.codeoftheweb.salvo.repository.GamePlayerRepository;
 import com.codeoftheweb.salvo.repository.GameRepository;
 import com.codeoftheweb.salvo.repository.PlayerRepository;
@@ -42,10 +39,29 @@ public class SalvoApplication {
 
 			  		gamePlayerRepo.save(new GamePlayer(gameRepository.findById(1).get(),playerRepository.findById(1).get(), new Date(),shipRepository.findAll()));
 					gamePlayerRepo.save(new GamePlayer(gameRepository.findById(1).get(),playerRepository.findById(2).get(), new Date(),shipRepository.findAll()));
+
+					List<ShipLocations> locations = new ArrayList<>();
+					locations.add(new ShipLocations("H2"));
+					locations.add(new ShipLocations("H3"));
+					locations.add(new ShipLocations("H4"));
+
+
+
+					shipRepository.save(new Ship("Destroyer",gamePlayerRepo.getOne(1),locations));
+					locations.clear();
+					locations.add(new ShipLocations("E1"));
+					locations.add(new ShipLocations("F1"));
+					locations.add(new ShipLocations("G1"));
+
+					shipRepository.save(new Ship("Submarine",gamePlayerRepo.getOne(1),locations));
+					locations.clear();
+					locations.add(new ShipLocations("B4"));
+					locations.add(new ShipLocations("B5"));
+					shipRepository.save(new Ship("Patrol Boat",gamePlayerRepo.getOne(1),locations));
+					locations.clear();
+
 					shipRepository.save(new Ship("carrier",gamePlayerRepo.getOne(1)));
-                    shipRepository.save(new Ship("Battleship",gamePlayerRepo.getOne(1)));
-                    shipRepository.save(new Ship("Submarine",gamePlayerRepo.getOne(1)));
-                    shipRepository.save(new Ship("Destroyer",gamePlayerRepo.getOne(1)));
+					shipRepository.save(new Ship("Battleship",gamePlayerRepo.getOne(1)));
                     shipRepository.save(new Ship("Patrol Boat",gamePlayerRepo.getOne(1)));
 		};
 	}

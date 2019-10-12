@@ -3,9 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <title>Ship Locations!</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
+<div class="container">
+    <h1 id="players-data">
+        <!-- Encabezado que depende de los jugadores de la partida. -->
+    </h1>
 
+    <!--La siguiente tabla muestra la grilla del juego, que se genera en game.js-->
+    <table class = "ship-grid">
+        <thead id = "grid-numbers">
+        </thead>
+        <tbody id="grid-letters">
+        </tbody>
+    </table>
+</div>
 <script
         src="https://code.jquery.com/jquery-3.4.1.min.js"
         integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="

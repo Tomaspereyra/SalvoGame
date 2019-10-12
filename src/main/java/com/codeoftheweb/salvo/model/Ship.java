@@ -29,6 +29,12 @@ public class Ship {
     public Ship() {
     }
 
+    public Ship(String type, GamePlayer gamePlayer, List<ShipLocations> locationsList) {
+        this.type = type;
+        this.gamePlayer = gamePlayer;
+        this.locationsList = locationsList;
+    }
+
     public String getType() {
         return type;
     }
