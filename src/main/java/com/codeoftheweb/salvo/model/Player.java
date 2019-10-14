@@ -17,10 +17,19 @@ public class Player {
     private String userName;
     private String emailAddress;
     private String password;
-
+    @OneToMany(mappedBy = "player",cascade = CascadeType.MERGE)
+    private List<Score> scores;
 
     public Player(){
 
+    }
+
+    public List<Score> getScores() {
+        return scores;
+    }
+
+    public void setScores(List<Score> scores) {
+        this.scores = scores;
     }
 
     public Integer getId() {
@@ -46,6 +55,15 @@ public class Player {
         this.userName = userName;
         this.emailAddress = emailAddress;
         this.password = password;
+    }
+
+    public Player(String firstName, String lastName, String userName, String emailAddress, String password, List<Score> scores) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.userName = userName;
+        this.emailAddress = emailAddress;
+        this.password = password;
+        this.scores = scores;
     }
 
     public Player(String firstName, String lastName, String userName, String emailAddress, String password) {

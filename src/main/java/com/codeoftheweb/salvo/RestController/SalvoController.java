@@ -32,7 +32,7 @@ public class SalvoController {
         List<Map<String,Object>> gamePlayerMap = new ArrayList<>();
 
         for(Game g:gamesList){
-            Map<String,Object> gameMap = new HashMap<>();
+            Map<String,Object> gameMap = new LinkedHashMap<>();
             gameMap.put("id",g.getId());
             gameMap.put("created",g.getCreationDate());
             for(GamePlayer gamePlayer: g.getGamePlayers()){
@@ -44,7 +44,10 @@ public class SalvoController {
                 gamesPlayers.put("player",player);
                 gamePlayerMap.add(gamesPlayers);
             }
+
+
             gameMap.put("gamePlayers",gamePlayerMap);
+            gameMap.put("scores:",g.getScores());
             gamePlayerMap = new ArrayList<>();
             gamesMap.add(gameMap);
 

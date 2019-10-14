@@ -8,6 +8,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
@@ -21,21 +22,21 @@ public class SalvoApplication {
 	}
 
 	@Bean
-	public CommandLineRunner initData(SalvoLocationsRepository salvoLocationsRepository,SalvoRepository salvoRepository,PlayerRepository playerRepository, GameRepository gameRepository, GamePlayerRepository gamePlayerRepo, ShipRepository shipRepository){
+	public CommandLineRunner initData(ScoreRepository scoreRepository,SalvoLocationsRepository salvoLocationsRepository,SalvoRepository salvoRepository,PlayerRepository playerRepository, GameRepository gameRepository, GamePlayerRepository gamePlayerRepo, ShipRepository shipRepository){
 		return (args)->{
 
 
-					playerRepository.save(new Player("Jack", "Bauer", "j.bauer", "j.bauer@ctu.gov","24"));
-					playerRepository.save(new Player("Chloe", "O'Brian", "c.obrian", "c.obrian@ctu.gov","42"));
-					playerRepository.save(new Player("Kim", "Bauer", "kim_bauer", "kim_bauer@gmail.com","kb"));
-					playerRepository.save(new Player("Tony", "Almeida", "t.almeida", "t.almeida@ctu.gov","mole"));
-					gameRepository.save(new Game(LocalDate.parse("2011-08-03T03:15:00", DateTimeFormatter.ISO_LOCAL_DATE_TIME),new ArrayList<GamePlayer>()));
-					gameRepository.save(new Game(LocalDate.parse("2011-08-03T04:15:00", DateTimeFormatter.ISO_LOCAL_DATE_TIME), new ArrayList<GamePlayer>()));
-					gameRepository.save(new Game(LocalDate.parse("2011-08-03T05:15:00", DateTimeFormatter.ISO_LOCAL_DATE_TIME),new ArrayList<GamePlayer>()));
+					Player jack=playerRepository.save(new Player("Jack", "Bauer", "j.bauer", "j.bauer@ctu.gov","24"));
+					Player chloe=playerRepository.save(new Player("Chloe", "O'Brian", "c.obrian", "c.obrian@ctu.gov","42"));
+					Player kim=playerRepository.save(new Player("Kim", "Bauer", "kim_bauer", "kim_bauer@gmail.com","kb"));
+					Player tony=playerRepository.save(new Player("Tony", "Almeida", "t.almeida", "t.almeida@ctu.gov","mole"));
+					Game game1=gameRepository.save(new Game(LocalDate.parse("2011-08-03T03:15:00", DateTimeFormatter.ISO_LOCAL_DATE_TIME),new ArrayList<GamePlayer>()));
+					Game game2=gameRepository.save(new Game(LocalDate.parse("2011-08-03T04:15:00", DateTimeFormatter.ISO_LOCAL_DATE_TIME), new ArrayList<GamePlayer>()));
+					Game game3=gameRepository.save(new Game(LocalDate.parse("2011-08-03T05:15:00", DateTimeFormatter.ISO_LOCAL_DATE_TIME),new ArrayList<GamePlayer>()));
 
 
-			  		gamePlayerRepo.save(new GamePlayer(gameRepository.findById(1).get(),playerRepository.findById(1).get(), new Date(),shipRepository.findAll()));
-					gamePlayerRepo.save(new GamePlayer(gameRepository.findById(1).get(),playerRepository.findById(2).get(), new Date(),shipRepository.findAll()));
+			  		gamePlayerRepo.save(new GamePlayer(game1,jack, new Date(),shipRepository.findAll()));
+					gamePlayerRepo.save(new GamePlayer(game1,chloe, new Date(),shipRepository.findAll()));
 
 					List<ShipLocations> locations = new ArrayList<>();
 					locations.add(new ShipLocations("H2"));
@@ -80,9 +81,9 @@ public class SalvoApplication {
 					salvoLocationsRepository.save(new SalvoLocation(salvoRepository.getOne(4),"E1"));
 					salvoLocationsRepository.save(new SalvoLocation(salvoRepository.getOne(4),"H3"));
 					salvoLocationsRepository.save(new SalvoLocation(salvoRepository.getOne(4),"A2"));
-
-
-
+					scoreRepository.save(new Score(game1,jack,1.5, LocalDateTime.now()));
+					scoreRepository.save(new Score(game2,jack,1.0,LocalDateTime.now()));
+					scoreRepository.save(new Score(game2,chloe,1.0,LocalDateTime.now()));
 
 
 		};

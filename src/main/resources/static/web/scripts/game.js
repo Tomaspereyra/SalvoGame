@@ -51,7 +51,6 @@ $(function() {
             }
             html = html + "<td style='background-color: " + cellColor + "'></td>";
         }
-       // console.log(html);
         return html;
     }
     function getColumnsGridSalvo(i){

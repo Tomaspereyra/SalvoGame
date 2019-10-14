@@ -19,12 +19,28 @@ public class Game {
     private LocalDate creationDate;
     @OneToMany(mappedBy="game",cascade = CascadeType.MERGE)
     private List<GamePlayer> gamePlayers;
+    @OneToMany(mappedBy = "game",cascade = CascadeType.MERGE)
+    private List<Score> scores;
     public Game(Integer id, LocalDate creationDate) {
         this.id = id;
         this.creationDate = creationDate;
     }
     public Game( LocalDate creationDate) {
        this.creationDate=creationDate;
+    }
+
+    public Game(LocalDate creationDate, List<GamePlayer> gamePlayers, List<Score> scores) {
+        this.creationDate = creationDate;
+        this.gamePlayers = gamePlayers;
+        this.scores = scores;
+    }
+
+    public List<Score> getScores() {
+        return scores;
+    }
+
+    public void setScores(List<Score> scores) {
+        this.scores = scores;
     }
 
     public List<GamePlayer> getGamePlayers() {
