@@ -15,6 +15,7 @@ public class ShipLocations {
     }
 
 
+
     public String getCell() {
         return cell;
     }

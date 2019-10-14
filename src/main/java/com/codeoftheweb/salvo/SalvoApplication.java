@@ -1,10 +1,7 @@
 package com.codeoftheweb.salvo;
 
 import com.codeoftheweb.salvo.model.*;
-import com.codeoftheweb.salvo.repository.GamePlayerRepository;
-import com.codeoftheweb.salvo.repository.GameRepository;
-import com.codeoftheweb.salvo.repository.PlayerRepository;
-import com.codeoftheweb.salvo.repository.ShipRepository;
+import com.codeoftheweb.salvo.repository.*;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -24,7 +21,7 @@ public class SalvoApplication {
 	}
 
 	@Bean
-	public CommandLineRunner initData(PlayerRepository playerRepository, GameRepository gameRepository, GamePlayerRepository gamePlayerRepo, ShipRepository shipRepository){
+	public CommandLineRunner initData(SalvoLocationsRepository salvoLocationsRepository,SalvoRepository salvoRepository,PlayerRepository playerRepository, GameRepository gameRepository, GamePlayerRepository gamePlayerRepo, ShipRepository shipRepository){
 		return (args)->{
 
 
@@ -59,11 +56,37 @@ public class SalvoApplication {
 					locations.add(new ShipLocations("B5"));
 					shipRepository.save(new Ship("Patrol Boat",gamePlayerRepo.getOne(1),locations));
 					locations.clear();
-
 					shipRepository.save(new Ship("carrier",gamePlayerRepo.getOne(1)));
 					shipRepository.save(new Ship("Battleship",gamePlayerRepo.getOne(1)));
                     shipRepository.save(new Ship("Patrol Boat",gamePlayerRepo.getOne(1)));
+                   //-------------- game 1 - turn 1 ---------------//
+                    salvoRepository.save(new Salvo(gamePlayerRepo.findById(1).get(),1));
+
+					salvoLocationsRepository.save(new SalvoLocation(salvoRepository.findById(1).get(),"B5"));
+					salvoLocationsRepository.save(new SalvoLocation(salvoRepository.getOne(1),"C5"));
+				    salvoLocationsRepository.save(new SalvoLocation(salvoRepository.getOne(1),"F1"));
+
+					salvoRepository.save(new Salvo(gamePlayerRepo.getOne(2),1));
+					salvoLocationsRepository.save(new SalvoLocation(salvoRepository.getOne(2),"B4"));
+					salvoLocationsRepository.save(new SalvoLocation(salvoRepository.getOne(2),"B5"));
+					salvoLocationsRepository.save(new SalvoLocation(salvoRepository.getOne(2),"B6"));
+					//-------------game 1 -turn 2 ------------//
+					salvoRepository.save(new Salvo(gamePlayerRepo.findById(1).get(),2));
+
+					salvoLocationsRepository.save(new SalvoLocation(salvoRepository.getOne(3),"F2"));
+					salvoLocationsRepository.save(new SalvoLocation(salvoRepository.getOne(3),"D5"));
+
+					salvoRepository.save(new Salvo(gamePlayerRepo.getOne(2),2));
+					salvoLocationsRepository.save(new SalvoLocation(salvoRepository.getOne(4),"E1"));
+					salvoLocationsRepository.save(new SalvoLocation(salvoRepository.getOne(4),"H3"));
+					salvoLocationsRepository.save(new SalvoLocation(salvoRepository.getOne(4),"A2"));
+
+
+
+
+
 		};
+
 	}
 
 

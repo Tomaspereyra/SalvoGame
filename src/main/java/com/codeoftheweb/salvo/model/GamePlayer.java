@@ -25,8 +25,17 @@ public class GamePlayer {
     private Date date;
     @OneToMany(mappedBy = "gamePlayer", cascade = CascadeType.MERGE)
     private List<Ship> ships;//Pasar a Set despues de las pruebas
-
+    @OneToMany(mappedBy = "gamePlayer",cascade = CascadeType.MERGE)
+    private List<Salvo> salvoes;
     public GamePlayer() {
+    }
+
+    public GamePlayer(Game game, Player player, Date date, List<Ship> ships, List<Salvo> salvoes) {
+        this.game = game;
+        this.player = player;
+        this.date = date;
+        this.ships = ships;
+        this.salvoes = salvoes;
     }
 
     public GamePlayer(Integer id, Game game, Player player, Date date) {
@@ -47,6 +56,14 @@ public class GamePlayer {
         this.player = player;
         this.date = date;
         this.ships = ships;
+    }
+
+    public List<Salvo> getSalvoes() {
+        return salvoes;
+    }
+
+    public void setSalvoes(List<Salvo> salvoes) {
+        this.salvoes = salvoes;
     }
 
     public List<Ship> getShips() {
@@ -94,10 +111,10 @@ public class GamePlayer {
     public String toString() {
         return "GamePlayer{" +
                 "id=" + id +
-
                 ", player=" + player +
                 ", date=" + date +
                 ", ships=" + ships +
+                ", salvoes=" + salvoes +
                 '}';
     }
 }

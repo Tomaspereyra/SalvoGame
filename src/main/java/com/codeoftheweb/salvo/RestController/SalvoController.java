@@ -1,8 +1,7 @@
 package com.codeoftheweb.salvo.RestController;
 
-import com.codeoftheweb.salvo.model.Game;
-import com.codeoftheweb.salvo.model.GamePlayer;
-import com.codeoftheweb.salvo.model.Ship;
+import com.codeoftheweb.salvo.dto.SalvoDTO;
+import com.codeoftheweb.salvo.model.*;
 import com.codeoftheweb.salvo.repository.GamePlayerRepository;
 import com.codeoftheweb.salvo.repository.GameRepository;
 import com.codeoftheweb.salvo.repository.PlayerRepository;
@@ -63,6 +62,8 @@ public class SalvoController {
         gameMap.put("created",game.getCreationDate());
         List<Map<String,Object>>gamePlayersList  = new ArrayList<>(); // lista para los GamePlayers
         List<Map<String,Object>> shipsList = new ArrayList<>();
+        List<SalvoDTO> salvoJson = new ArrayList<>();
+
         for(GamePlayer gamePlayer:game.getGamePlayers()){
             Map<String,Object> gamePlayerMap = new HashMap<>(); //map para cada game Player
             gamePlayerMap.put("id",gamePlayer.getId());
@@ -78,12 +79,26 @@ public class SalvoController {
                 shipMap.put("locations",ship.getLocationsList());
                 shipsList.add(shipMap);
             }
+            //--mapeo salvo  -----//
+            for(Salvo salvo: gamePlayer.getSalvoes()){
+                SalvoDTO salvoDTO = new SalvoDTO();
+                salvoDTO.setTurn(salvo.getTurnNumber());
+                salvoDTO.setPlayerID(gamePlayer.getPlayer().getId());
+                List<String> cells = new ArrayList<>();
+                for (SalvoLocation salvoLoc:salvo.getSalvoLocations()){
+                    cells.add(salvoLoc.getCell());
+                }
+                salvoDTO.setLocations(cells);
+
+                salvoJson.add(salvoDTO);
+
+            }
 
         }
         gameMap.put("gamePlayers",gamePlayersList); // lo agrego al map general
         gameMap.put("ships",shipsList);
-        System.out.println(gameRepository.getOne(1));
-        System.out.println(gamePlayerRepository.getOne(1));
+        gameMap.put("salvoes",salvoJson);
+
         return gameMap;
 
     }
