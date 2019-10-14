@@ -10,6 +10,11 @@ $(function() {
     // Posiciones de todos los barcos del jugador.
     let locations = [];
 
+    //Setea los salvo de el jugador
+    let locationsSalvo = []
+    //tiros del oponente
+    oponentShots=[]
+
     // genera el HTML de los encabezados de la grilla.
     function getHeadersHtml(headers) {
         return "<tr><th></th>" + headers.map(function(header) {
@@ -21,6 +26,7 @@ $(function() {
     function renderHeaders() {
         var html = getHeadersHtml(numbers);
         document.getElementById("grid-numbers").innerHTML = html;
+        document.getElementById("grid-salvo-numbers").innerHTML = html;
     }
 
     // Genera el HTML de las columnas.
@@ -29,35 +35,66 @@ $(function() {
         for (let j = 0; j < numbers.length; j++) {
             //let cellContent = "";
             let cellColor = "blue";
+            let text ="";
             for (let k = 0; k < locations.length; k++) {
 
                 if ((locations[k].cell.localeCompare(letters[i]+numbers[j]))==0) {
 
-                    //cellContent = "si";
-                    cellColor = "gray";
+                    if((locations[k].cell.localeCompare(oponentShots[i]))==0){
+                         cellColor= "black";
+
+                    }else{
+                         cellColor = "gray";
+                    }
                 }
+
             }
             html = html + "<td style='background-color: " + cellColor + "'></td>";
         }
        // console.log(html);
         return html;
     }
+    function getColumnsGridSalvo(i){
+             let html = "";
+            for (let j = 0; j < numbers.length; j++) {
+                //let cellContent = "";
+                let cellColor = "blue";
+                for (let k = 0; k < locationsSalvo.length; k++) {
+
+                    if ((locationsSalvo[k].localeCompare(letters[i]+numbers[j]))==0) {
+                        debugger;
+                        //cellContent = "si";
+                        cellColor = "gray";
+                    }
+                }
+                html = html + "<td style='background-color: " + cellColor + "'></td>";
+            }
+           // console.log(html);
+            return html;
+
+    }
 
     // genera el HTML de las filas (depende de getColumnsHtml)
-    function getRowsHtml() {
+    function getRowsHtml(isGridShip) {
         let html = "";
+        if(isGridShip){
         for (let i = 0; i < letters.length; i ++) {
             html = html + "<tr><th>" + letters[i] + "</th>" + getColumnsHtml(i) + "</tr>";
         }
-        console.log(html);
+        }else{
+        debugger;
+        for (let i = 0; i < letters.length; i ++) {
+            html = html + "<tr><th>" + letters[i] + "</th>" +getColumnsGridSalvo(i) + "</tr>";
+           }
+
+        }
         return html;
     }
 
     // dibuja las filas de la grilla
     function renderRows() {
-        var html = getRowsHtml();
-
-        document.getElementById("grid-letters").innerHTML = html;
+        document.getElementById("grid-letters").innerHTML = getRowsHtml(true);
+        document.getElementById("grid-salvo-letters").innerHTML = getRowsHtml(false);
     }
 
     // Dibuja la grilla.
@@ -92,12 +129,30 @@ $(function() {
         console.log(mappedLocations);
     }
 
+    function setSalvoLocations(data){
+
+             for(let i =0;i<data.salvoes.length; i++){
+                if(data.salvoes[i].playerID==urlParams.get('gp')){
+                    locationsSalvo= locationsSalvo.concat(data.salvoes[i].locations);}
+                 else{
+                    oponentShots = oponentShots.concat(data.salvoes[i].locations);
+                 }
+             }
+           // locationsSalvo = [].concat.apply([], mappedLocations);
+            console.log("oponent's shots:"+oponentShots);
+           // console.log("mapped Locations:"+mappedLocations);
+            console.log("Locations salvo:"+locationsSalvo);
+
+    }
+
     // carga los datos del gameplayer según el parámetro 'gp' en la URL y llama a los métodos que dibujan la grilla
     function loadData() {
         $.get("/api/game_view/"+urlParams.get('gp'))
             .done(function(data) {
-                //console.log(data);
+                console.log(data);
+
                 setLocations(data);
+                setSalvoLocations(data);
                 showPlayersData(data);
                 renderTable();
             })
