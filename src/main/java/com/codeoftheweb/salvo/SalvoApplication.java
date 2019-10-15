@@ -82,8 +82,9 @@ public class SalvoApplication {
 					salvoLocationsRepository.save(new SalvoLocation(salvoRepository.getOne(4),"H3"));
 					salvoLocationsRepository.save(new SalvoLocation(salvoRepository.getOne(4),"A2"));
 					scoreRepository.save(new Score(game1,jack,1.5, LocalDateTime.now()));
-					scoreRepository.save(new Score(game2,jack,1.0,LocalDateTime.now()));
-					scoreRepository.save(new Score(game2,chloe,1.0,LocalDateTime.now()));
+					scoreRepository.save(new Score(game1,chloe,0.0,LocalDateTime.now()));
+					//scoreRepository.save(new Score(game2,jack,1.0,LocalDateTime.now()));
+					//scoreRepository.save(new Score(game2,chloe,1.0,LocalDateTime.now()));
 
 
 		};

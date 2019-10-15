@@ -1,10 +1,12 @@
 package com.codeoftheweb.salvo.RestController;
 
+import com.codeoftheweb.salvo.dto.LeaderboardDTO;
 import com.codeoftheweb.salvo.dto.SalvoDTO;
 import com.codeoftheweb.salvo.model.*;
 import com.codeoftheweb.salvo.repository.GamePlayerRepository;
 import com.codeoftheweb.salvo.repository.GameRepository;
 import com.codeoftheweb.salvo.repository.PlayerRepository;
+import com.codeoftheweb.salvo.service.impl.PlayerServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,8 +26,11 @@ public class SalvoController {
     @Autowired
     private GamePlayerRepository gamePlayerRepository;
 
+    @Autowired
+    private PlayerServiceImpl playerService;
+
     @RequestMapping("/games")
-    public List<Map<String,Object>> getIds(){
+    public List<Map<String,Object>> getGames(){
         List<Game> gamesList = this.gameRepository.findAll();
         List<Map<String,Object>> gamesMap = new ArrayList<>();
         //meti el new map adentro del for por que me pasaba esto https://stackoverflow.com/questions/4100486/java-create-a-list-of-hashmaps
@@ -57,6 +62,28 @@ public class SalvoController {
 
 
     }
+    @RequestMapping("/leaderboard")
+    public List<Map<String,Object>>getLeaderBoard(){
+        List<Map<String,Object>> leaderboardList = new ArrayList<>();
+
+        for(Player player: playerService.findAll()){
+            Map<String,Object> leaderboardMap = new LinkedHashMap<>();
+            leaderboardMap.put("player",player.getEmailAddress());
+            LeaderboardDTO leaderboardDTO = new LeaderboardDTO();
+            leaderboardDTO.setTotalWins(playerService.totalWins(player));
+            leaderboardDTO.setTotalLosses(playerService.totalLosses(player));
+            leaderboardDTO.setTotalTies(playerService.totalTies(player));
+            leaderboardDTO.setTotalScore(playerService.totalScore(player));
+            leaderboardMap.put("leaderBoard",leaderboardDTO);
+            leaderboardList.add(leaderboardMap);
+
+
+
+        }
+
+        return leaderboardList;
+    }
+
     @RequestMapping("/game_view/{id}")
     public Map<String,Object> getGameView(@PathVariable Integer id){
         Game game = this.gameRepository.getOne(id);
