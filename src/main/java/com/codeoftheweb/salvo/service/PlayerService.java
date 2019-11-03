@@ -11,5 +11,6 @@ public interface PlayerService {
     public Integer totalWins(Player player);
     public Integer totalLosses(Player player);
     public Integer totalTies(Player player);
+    Player findByEmail(String email);
     
 }

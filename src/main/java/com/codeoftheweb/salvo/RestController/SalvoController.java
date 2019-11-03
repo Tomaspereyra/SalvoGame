@@ -8,11 +8,13 @@ import com.codeoftheweb.salvo.repository.GameRepository;
 import com.codeoftheweb.salvo.repository.PlayerRepository;
 import com.codeoftheweb.salvo.service.impl.PlayerServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.*;
 
 
+import javax.xml.ws.Response;
 import java.util.*;
 
 @RestController
@@ -28,6 +30,25 @@ public class SalvoController {
 
     @Autowired
     private PlayerServiceImpl playerService;
+    @RequestMapping(path="/login",method = RequestMethod.POST)
+    public ResponseEntity<Object> login(@RequestParam String email, @RequestParam String password, Authentication authentication){
+       // System.out.println(authentication.getName());
+        System.out.println(authentication);
+        if(email.isEmpty() || password.isEmpty()){
+            return  new ResponseEntity<>("Missing data", HttpStatus.FORBIDDEN);
+
+
+        }
+        if(playerService.findByEmail(email) != null && playerService.findByEmail(email).getPassword().equals(password)){
+            return new ResponseEntity<>("Logged in ", HttpStatus.OK);
+        }else{
+            return new ResponseEntity<>("bad data", HttpStatus.BAD_REQUEST);
+        }
+
+
+
+
+    }
 
     @RequestMapping("/games")
     public List<Map<String,Object>> getGames(){

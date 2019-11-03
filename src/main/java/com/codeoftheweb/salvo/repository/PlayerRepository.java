@@ -14,4 +14,6 @@ public interface PlayerRepository extends JpaRepository<Player,Integer> {
     List<Player> findAll();
 
     Player findByUserName(@Param("username") String username);
+
+    Player findByEmailAddress(String email);
 }

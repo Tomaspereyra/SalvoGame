@@ -36,7 +36,7 @@ function renderTable(data){
         bodyTable.innerHTML =items.join("");
 
 }
-
+$.post("/app", { email: "j.bauer@ctu.gov", password: "24" }).done(function(){ console.log("vamoo")
 $.get("http://localhost:8080/api/games").done(function(data){
 renderList(data);
 })
@@ -44,4 +44,9 @@ renderList(data);
 $.get("http://localhost:8080/api/leaderboard").done(function(data){
 renderTable(data);
 })
+
+})
+
+
+
 

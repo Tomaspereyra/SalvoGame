@@ -25,6 +25,11 @@ public class PlayerServiceImpl implements PlayerService {
         }
         return total;
     }
+    @Override
+    public Player findByEmail(String username){
+        return playerRepository.findByEmailAddress(username);
+
+    }
 
     @Override
     public Integer totalWins(Player player) {
