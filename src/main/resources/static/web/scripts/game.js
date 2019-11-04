@@ -159,7 +159,13 @@ $(function() {
                 alert( "Failed: " + textStatus );
             });
     }
+/*    $.post("/app/logout").done(function(){
+       console.log("sali");
+
+
+    })*/
 
     loadData();
+
 
 });

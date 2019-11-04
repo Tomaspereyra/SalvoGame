@@ -16,7 +16,7 @@ var htmlData = getGamePlayer(game.gamePlayers);
 
 
 function getListHtml(data) {
-        console.log(data.map(getItemHtml).join(""));
+        console.log(data);
   return data.map(getItemHtml).join("");
 }
 function renderList(data) {
@@ -36,7 +36,7 @@ function renderTable(data){
         bodyTable.innerHTML =items.join("");
 
 }
-$.post("/app", { email: "j.bauer@ctu.gov", password: "24" }).done(function(){ console.log("vamoo")
+$.post("/app/login", { email: "j.bauer@ctu.gov", password: "24" }).done(function(){ console.log("vamoo");
 $.get("http://localhost:8080/api/games").done(function(data){
 renderList(data);
 })

@@ -5,10 +5,12 @@ import com.codeoftheweb.salvo.model.Score;
 import com.codeoftheweb.salvo.repository.PlayerRepository;
 import com.codeoftheweb.salvo.service.PlayerService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 @Service
+@Qualifier("playerService")
 public class PlayerServiceImpl implements PlayerService {
     @Autowired
     private PlayerRepository playerRepository;
@@ -26,8 +28,8 @@ public class PlayerServiceImpl implements PlayerService {
         return total;
     }
     @Override
-    public Player findByEmail(String username){
-        return playerRepository.findByEmailAddress(username);
+    public Player findByEmail(String email){
+        return playerRepository.findByEmailAddress(email);
 
     }
 
@@ -63,5 +65,9 @@ public class PlayerServiceImpl implements PlayerService {
             }
         }
         return totalTies;
+    }
+    @Override
+    public Player save(String first,String last,String email,String username,String pass){
+       return playerRepository.save(new Player(first,last,username,email,pass));
     }
 }

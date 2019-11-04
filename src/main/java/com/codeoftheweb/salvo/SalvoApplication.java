@@ -23,6 +23,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.WebAttributes;
 import org.springframework.security.web.authentication.logout.HttpStatusReturningLogoutSuccessHandler;
+import org.springframework.web.bind.annotation.CrossOrigin;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -120,6 +121,7 @@ public class SalvoApplication {
 	}
 
 @Configuration
+@CrossOrigin(origins = "http://localhost:4200") //  the annotation enables Cross-Origin Resource Sharing (CORS) on the server.
 class WebSecurityConfiguration extends GlobalAuthenticationConfigurerAdapter {
 	@Autowired
 	PlayerRepository playerRepository;
@@ -150,28 +152,29 @@ class WebSecurityConfiguration extends GlobalAuthenticationConfigurerAdapter {
 @Configuration
 @EnableWebSecurity
 class WebSecurityConfig extends WebSecurityConfigurerAdapter {
-
-
-
-
-
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
+        // turn off checking for CSRF tokens
+        http.csrf().disable();
+
+       // http.cors().disable();
+
 		http.authorizeRequests().
-				antMatchers(HttpMethod.POST, "/api/login").permitAll()
+				antMatchers(HttpMethod.POST, "/app/login").permitAll()
 				.antMatchers(HttpMethod.GET,"/web/**").permitAll()
-				.anyRequest().authenticated()
+				.antMatchers(HttpMethod.POST,"/api/players").permitAll()
+                .anyRequest().authenticated()
 				.and()
 				.formLogin();
 				http.formLogin()
 				.usernameParameter("email")
 				.passwordParameter("password")
-				.loginPage("/app");
+				.loginPage("/app/login");
+
+				http.logout().logoutUrl("/app/logout");
 
 
-	// turn off checking for CSRF tokens
-  http.csrf().disable();
-  http.cors().disable();
+
 	// if user is not authenticated, just send an authentication failure response
   http.exceptionHandling().authenticationEntryPoint((req, res, exc) -> res.sendError(HttpServletResponse.SC_UNAUTHORIZED));
 
@@ -194,3 +197,4 @@ class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 		}
 	}
 }
+

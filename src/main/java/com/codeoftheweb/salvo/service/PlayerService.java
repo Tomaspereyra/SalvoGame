@@ -12,5 +12,6 @@ public interface PlayerService {
     public Integer totalLosses(Player player);
     public Integer totalTies(Player player);
     Player findByEmail(String email);
-    
-}
+    public Player save(String first,String last,String email,String username,String pass);
+
+    }
