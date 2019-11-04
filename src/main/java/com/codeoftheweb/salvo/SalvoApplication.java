@@ -24,6 +24,8 @@ import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.WebAttributes;
 import org.springframework.security.web.authentication.logout.HttpStatusReturningLogoutSuccessHandler;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -43,7 +45,18 @@ public class SalvoApplication {
 		SpringApplication.run(SalvoApplication.class, args);
 
 	}
-		@Bean
+
+	@Bean
+    public WebMvcConfigurer corsConfigurer() {
+        return new WebMvcConfigurer() {
+            @Override
+            public void addCorsMappings(CorsRegistry registry) {
+                registry.addMapping("/app/login").allowedOrigins("http://localhost:4200/api");
+            }
+        };
+	}
+
+        @Bean
 		public PasswordEncoder passwordEncoder() {
 		return PasswordEncoderFactories.createDelegatingPasswordEncoder();}
 
@@ -121,7 +134,6 @@ public class SalvoApplication {
 	}
 
 @Configuration
-@CrossOrigin(origins = "http://localhost:4200") //  the annotation enables Cross-Origin Resource Sharing (CORS) on the server.
 class WebSecurityConfiguration extends GlobalAuthenticationConfigurerAdapter {
 	@Autowired
 	PlayerRepository playerRepository;
@@ -134,8 +146,9 @@ class WebSecurityConfiguration extends GlobalAuthenticationConfigurerAdapter {
 	public void init(AuthenticationManagerBuilder auth) throws Exception {
 
 		auth.userDetailsService(inputName -> {
+            System.out.println("inputname:"+inputName.toString());
 			Player player = playerRepository.findByEmailAddress(inputName);
-			System.out.println("inputname:"+inputName);
+
 			if (player != null) {
 				System.out.println(player);
 				return new User(player.getEmailAddress(), player.getPassword(),
@@ -155,15 +168,14 @@ class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
         // turn off checking for CSRF tokens
-        http.csrf().disable();
+       // http.csrf().disable();
 
-       // http.cors().disable();
+        //http.cors()..disable();
 
 		http.authorizeRequests().
 				antMatchers(HttpMethod.POST, "/app/login").permitAll()
 				.antMatchers(HttpMethod.GET,"/web/**").permitAll()
 				.antMatchers(HttpMethod.POST,"/api/players").permitAll()
-                .anyRequest().authenticated()
 				.and()
 				.formLogin();
 				http.formLogin()
@@ -175,7 +187,7 @@ class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
 
 
-	// if user is not authenticated, just send an authentication failure response
+/*	// if user is not authenticated, just send an authentication failure response
   http.exceptionHandling().authenticationEntryPoint((req, res, exc) -> res.sendError(HttpServletResponse.SC_UNAUTHORIZED));
 
 	// if login is successful, just clear the flags asking for authentication
@@ -185,7 +197,7 @@ class WebSecurityConfig extends WebSecurityConfigurerAdapter {
   http.formLogin().failureHandler((req, res, exc) -> res.sendError(HttpServletResponse.SC_UNAUTHORIZED));
 
 	// if logout is successful, just send a success response
-  http.logout().logoutSuccessHandler(new HttpStatusReturningLogoutSuccessHandler());
+  http.logout().logoutSuccessHandler(new HttpStatusReturningLogoutSuccessHandler());*/
 
 
 }
