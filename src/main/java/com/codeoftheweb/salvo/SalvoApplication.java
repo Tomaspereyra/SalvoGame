@@ -2,6 +2,7 @@ package com.codeoftheweb.salvo;
 
 import com.codeoftheweb.salvo.model.*;
 import com.codeoftheweb.salvo.repository.*;
+import com.codeoftheweb.salvo.service.impl.UserDetailsServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -16,6 +17,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
@@ -51,7 +53,7 @@ public class SalvoApplication {
         return new WebMvcConfigurer() {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
-                registry.addMapping("/app/login").allowedOrigins("http://localhost:4200/api");
+                registry.addMapping("/app/login").allowedOrigins("http://localhost:4200");
             }
         };
 	}
@@ -132,13 +134,15 @@ public class SalvoApplication {
 		}
 
 	}
-
+/*
 @Configuration
 class WebSecurityConfiguration extends GlobalAuthenticationConfigurerAdapter {
 	@Autowired
 	PlayerRepository playerRepository;
 	@Autowired
 	private PasswordEncoder passwordEncoder;
+
+	private UserDetailsService userDetailsService;
 
 
 
@@ -157,37 +161,49 @@ class WebSecurityConfiguration extends GlobalAuthenticationConfigurerAdapter {
 				System.out.println("else");
 				throw new UsernameNotFoundException("Unknown user:" + inputName);
 			}
-		}).passwordEncoder(passwordEncoder);
+		});
+		System.out.println(auth.getDefaultUserDetailsService());
 
 	}
-}
+}*/
 
 @Configuration
 @EnableWebSecurity
 class WebSecurityConfig extends WebSecurityConfigurerAdapter {
-	@Override
+    private UserDetailsService userDetailsService;
+    private PasswordEncoder passwordEncoder;
+
+    public WebSecurityConfig(UserDetailsServiceImpl userDetailsService,PasswordEncoder passwordEncoder){
+        this.userDetailsService = userDetailsService;
+        this.passwordEncoder = passwordEncoder;
+    }
+
+    @Override
 	protected void configure(HttpSecurity http) throws Exception {
         // turn off checking for CSRF tokens
-       // http.csrf().disable();
+        http.csrf().disable();
 
-        //http.cors()..disable();
+        http.cors().disable();
 
-		http.authorizeRequests().
-				antMatchers(HttpMethod.POST, "/app/login").permitAll()
+
+		http.authorizeRequests()
+			//	.antMatchers(HttpMethod.POST, "/app/login").permitAll()
+                .antMatchers(HttpMethod.GET,"/api/*").permitAll()//por el momento, no me permite aun logueado
 				.antMatchers(HttpMethod.GET,"/web/**").permitAll()
 				.antMatchers(HttpMethod.POST,"/api/players").permitAll()
+                .anyRequest().authenticated()
 				.and()
-				.formLogin();
-				http.formLogin()
-				.usernameParameter("email")
-				.passwordParameter("password")
-				.loginPage("/app/login");
-
-				http.logout().logoutUrl("/app/logout");
-
+				.formLogin()
+                .usernameParameter("email")
+                .passwordParameter("password")
+                .loginPage("/app/login").permitAll()
+                .and()
+                .logout().logoutUrl("/app/logout");
 
 
-/*	// if user is not authenticated, just send an authentication failure response
+
+
+	// if user is not authenticated, just send an authentication failure response
   http.exceptionHandling().authenticationEntryPoint((req, res, exc) -> res.sendError(HttpServletResponse.SC_UNAUTHORIZED));
 
 	// if login is successful, just clear the flags asking for authentication
@@ -197,16 +213,22 @@ class WebSecurityConfig extends WebSecurityConfigurerAdapter {
   http.formLogin().failureHandler((req, res, exc) -> res.sendError(HttpServletResponse.SC_UNAUTHORIZED));
 
 	// if logout is successful, just send a success response
-  http.logout().logoutSuccessHandler(new HttpStatusReturningLogoutSuccessHandler());*/
+  http.logout().logoutSuccessHandler(new HttpStatusReturningLogoutSuccessHandler());
 
 
 }
+    @Override
+    public void configure(AuthenticationManagerBuilder auth) throws Exception {
+        auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder);
+    }
+
 
 	private void clearAuthenticationAttributes(HttpServletRequest request) {
 		HttpSession session = request.getSession(false);
 		if (session != null) {
 			session.removeAttribute(WebAttributes.AUTHENTICATION_EXCEPTION);
 		}
+
 	}
 }
 

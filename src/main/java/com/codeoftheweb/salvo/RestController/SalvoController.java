@@ -11,6 +11,7 @@ import com.codeoftheweb.salvo.service.impl.PlayerServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
@@ -21,7 +22,7 @@ import java.util.*;
 
 @RestController
 @RequestMapping("/api")
-@CrossOrigin(origins = "http://localhost:4200") //  the annotation enables Cross-Origin Resource Sharing (CORS) on the server.
+//@CrossOrigin(origins = "http://localhost:4200") //  the annotation enables Cross-Origin Resource Sharing (CORS) on the server.
 public class SalvoController {
 
         @Autowired
@@ -35,25 +36,7 @@ public class SalvoController {
         private PlayerService playerService;
         @Autowired
         private PasswordEncoder passwordEncoder;
-        @RequestMapping(path="/login",method = RequestMethod.POST)
-        public ResponseEntity<Object> login(@RequestParam String email, @RequestParam String password, Authentication authentication){
-           // System.out.println(authentication.getName());
-            System.out.println(authentication);
-            if(email.isEmpty() || password.isEmpty()){
-                return  new ResponseEntity<>("Missing data", HttpStatus.FORBIDDEN);
 
-
-            }
-            if(playerService.findByEmail(email) != null && playerService.findByEmail(email).getPassword().equals(password)){
-                return new ResponseEntity<>("Logged in ", HttpStatus.OK);
-            }else{
-                return new ResponseEntity<>("bad data", HttpStatus.BAD_REQUEST);
-            }
-
-
-
-
-        }
         @RequestMapping("/players")
         @PostMapping
         public ResponseEntity<String> register(@RequestParam String first, @RequestParam String last,@RequestParam String email,@RequestParam String password,@RequestParam String username){
@@ -69,17 +52,25 @@ public class SalvoController {
             return new ResponseEntity<>(HttpStatus.CREATED);
 
         }
-
+        private boolean isGuest(Authentication authentication) {
+            return authentication == null || authentication instanceof AnonymousAuthenticationToken;
+        }
         @RequestMapping("/games")
         public List<Map<String,Object>> getGames(Authentication auth){
-            Player p = this.getUserAuthenticated(auth);
             List<Map<String,Object>> gamesMap = new ArrayList<>();
-            Map<String,Object> playerMap = new HashMap<>();
-            Map<String,String> playerObject = new HashMap<>();
-            playerObject.put("id",p.getId().toString());
-            playerObject.put("name",p.getUserName());
-            playerMap.put("player",playerObject);
-            gamesMap.add(playerMap);
+
+            if(!isGuest(auth)){
+                System.out.println("User logged");
+                Player p = this.getUserAuthenticated(auth);
+                System.out.println(p);
+                Map<String,Object> playerMap = new HashMap<>();
+                Map<String,String> playerObject = new HashMap<>();
+                playerObject.put("id",p.getId().toString());
+                playerObject.put("name",p.getUserName());
+                playerMap.put("player",playerObject);
+                gamesMap.add(playerMap);
+
+            }
 
             List<Game> gamesList = this.gameRepository.findAll();
             //meti el new map adentro del for por que me pasaba esto https://stackoverflow.com/questions/4100486/java-create-a-list-of-hashmaps
@@ -112,8 +103,8 @@ public class SalvoController {
 
         }
         private Player getUserAuthenticated(Authentication auth){
-            Player player = null;
-            if(auth.getName()!=null) {
+            Player player = new Player();
+            if(auth !=null) {
                 player = this.playerService.findByEmail(auth.getName());
             }
             return player;
