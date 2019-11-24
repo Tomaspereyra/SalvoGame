@@ -48,15 +48,6 @@ public class SalvoApplication {
 
 	}
 
-	@Bean
-    public WebMvcConfigurer corsConfigurer() {
-        return new WebMvcConfigurer() {
-            @Override
-            public void addCorsMappings(CorsRegistry registry) {
-                registry.addMapping("/app/login").allowedOrigins("http://localhost:4200");
-            }
-        };
-	}
 
         @Bean
 		public PasswordEncoder passwordEncoder() {
@@ -166,7 +157,7 @@ class WebSecurityConfiguration extends GlobalAuthenticationConfigurerAdapter {
 
 	}
 }*/
-
+/*
 @Configuration
 @EnableWebSecurity
 class WebSecurityConfig extends WebSecurityConfigurerAdapter {
@@ -232,3 +223,4 @@ class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	}
 }
 
+*/

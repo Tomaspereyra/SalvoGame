@@ -15,6 +15,7 @@ import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 
 
 import javax.xml.ws.Response;
@@ -54,6 +55,14 @@ public class SalvoController {
         }
         private boolean isGuest(Authentication authentication) {
             return authentication == null || authentication instanceof AnonymousAuthenticationToken;
+        }
+        @RequestMapping("/login")
+        @PostMapping
+        public Map<String,String> login(@RequestParam String first, @RequestParam String last){
+            System.out.println("User logged");
+            Map<String,String> map = new HashMap<>();
+            map.put("hola","hola");
+            return map;
         }
         @RequestMapping("/games")
         public List<Map<String,Object>> getGames(Authentication auth){
