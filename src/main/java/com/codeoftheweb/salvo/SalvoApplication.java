@@ -72,6 +72,8 @@ public class SalvoApplication {
 				gamePlayerRepo.save(new GamePlayer(game1, jack, new Date(), shipRepository.findAll()));
 				gamePlayerRepo.save(new GamePlayer(game1, chloe, new Date(), shipRepository.findAll()));
 
+				gamePlayerRepo.save(new GamePlayer(game2,chloe,new Date(),shipRepository.findAll()));
+
 				List<ShipLocations> locations = new ArrayList<>();
 				locations.add(new ShipLocations("H2"));
 				locations.add(new ShipLocations("H3"));

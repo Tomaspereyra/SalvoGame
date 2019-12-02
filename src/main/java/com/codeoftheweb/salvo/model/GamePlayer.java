@@ -58,6 +58,7 @@ public class GamePlayer {
         this.ships = ships;
     }
 
+
     public List<Salvo> getSalvoes() {
         return salvoes;
     }

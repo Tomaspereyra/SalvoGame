@@ -6,8 +6,10 @@ import com.codeoftheweb.salvo.model.*;
 import com.codeoftheweb.salvo.repository.GamePlayerRepository;
 import com.codeoftheweb.salvo.repository.GameRepository;
 import com.codeoftheweb.salvo.repository.PlayerRepository;
+import com.codeoftheweb.salvo.repository.ShipRepository;
 import com.codeoftheweb.salvo.service.PlayerService;
-import com.codeoftheweb.salvo.service.impl.PlayerServiceImpl;
+import com.fasterxml.jackson.core.JsonParser;
+import jdk.nashorn.internal.parser.JSONParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,10 +17,11 @@ import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.RestTemplate;
+import sun.security.krb5.internal.ccache.FileCredentialsCache;
 
 
-import javax.xml.ws.Response;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @RestController
@@ -32,6 +35,8 @@ public class SalvoController {
         private PlayerRepository playerRepository;
         @Autowired
         private GamePlayerRepository gamePlayerRepository;
+        @Autowired
+        private ShipRepository shipRepository;
 
         @Autowired
         private PlayerService playerService;
@@ -56,22 +61,13 @@ public class SalvoController {
         private boolean isGuest(Authentication authentication) {
             return authentication == null || authentication instanceof AnonymousAuthenticationToken;
         }
-        @RequestMapping("/login")
-        @PostMapping
-        public Map<String,String> login(@RequestParam String first, @RequestParam String last){
-            System.out.println("User logged");
-            Map<String,String> map = new HashMap<>();
-            map.put("hola","hola");
-            return map;
-        }
+
         @RequestMapping("/games")
         public List<Map<String,Object>> getGames(Authentication auth){
             List<Map<String,Object>> gamesMap = new ArrayList<>();
 
             if(!isGuest(auth)){
-                System.out.println("User logged");
                 Player p = this.getUserAuthenticated(auth);
-                System.out.println(p);
                 Map<String,Object> playerMap = new HashMap<>();
                 Map<String,String> playerObject = new HashMap<>();
                 playerObject.put("id",p.getId().toString());
@@ -140,9 +136,49 @@ public class SalvoController {
 
             return leaderboardList;
         }
+        @RequestMapping("/createGame")
+        @PostMapping
+        public ResponseEntity<Map<String,Object>> createdGame(Authentication auth){
+            Player player = this.getUserAuthenticated(auth);
+            ResponseEntity response = ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Usuario no autorizado");
+            if(player != null ){
+                try {
+                    Game game1 = gameRepository.save(new Game(LocalDate.parse("2011-08-03T03:15:00", DateTimeFormatter.ISO_LOCAL_DATE_TIME), new ArrayList<GamePlayer>()));
+                    gamePlayerRepository.save(new GamePlayer(game1, player, new Date(), shipRepository.findAll()));
+                    response = ResponseEntity.status(HttpStatus.CREATED).body(game1);
+                }
+                catch(Exception e){
+                    response = ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al crear un juego");
+
+                }
+
+            }
+            return response;
+
+
+        }
+        @RequestMapping("/join")
+        @PostMapping
+        public ResponseEntity<Map<String,Object>> joinGame(@RequestBody Map<String,String> body,Authentication auth){
+            System.out.println(body.get("id"));
+            ResponseEntity response = ResponseEntity.status(HttpStatus.OK).body(body);
+            try{
+            Game game = gameRepository.getOne(Integer.valueOf(body.get("id")));
+            Player player = getUserAuthenticated(auth);
+            System.out.println(player);
+            gamePlayerRepository.save(new GamePlayer(game, player, new Date(), shipRepository.findAll()));
+
+            }
+            catch (Exception e){
+                response = ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Ocurrio un error inesperado al intentar unirse a un juego");
+                                    }
+            return response;
+
+        }
+
 
         @RequestMapping("/game_view/{id}")
-        public Map<String,Object> getGameView(@PathVariable Integer id){
+        public ResponseEntity<Map<String, Object>> getGameView(@PathVariable Integer id){
             Game game = this.gameRepository.getOne(id);
             Map<String,Object> gameMap= new LinkedHashMap<>(); // ordena los elementos segun se van cargando
             gameMap.put("id",game.getId());
@@ -185,8 +221,7 @@ public class SalvoController {
             gameMap.put("gamePlayers",gamePlayersList); // lo agrego al map general
             gameMap.put("ships",shipsList);
             gameMap.put("salvoes",salvoJson);
-
-            return gameMap;
+           return  ResponseEntity.status(HttpStatus.OK).body(gameMap);
 
         }
 }

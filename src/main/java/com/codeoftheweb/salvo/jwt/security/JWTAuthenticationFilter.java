@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletResponse;
 import com.codeoftheweb.salvo.model.Player;
 import com.codeoftheweb.salvo.repository.PlayerRepository;
 import com.codeoftheweb.salvo.util.Constante;
+import org.apache.tomcat.util.bcel.Const;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -61,6 +62,8 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
                 .setExpiration(new Date(System.currentTimeMillis() + Constante.TOKEN_EXPIRATION_TIME))
                 .signWith(SignatureAlgorithm.HS512, Constante.SUPER_SECRET_KEY).compact();
         //Agrego al header "Authorization": "Bearer + token generado";
+        response.addHeader("Access-Control-Expose-Headers", Constante.HEADER_AUTHORIZACION_KEY);
         response.addHeader(Constante.HEADER_AUTHORIZACION_KEY, Constante.TOKEN_BEARER_PREFIX + " " + token);
+
     }
 }

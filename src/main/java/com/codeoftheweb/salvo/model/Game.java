@@ -15,7 +15,6 @@ public class Game {
     @GeneratedValue(strategy = GenerationType.AUTO,generator = "native")
     @GenericGenerator(name="native",strategy="native")
     private Integer id;
-
     private LocalDate creationDate;
     @OneToMany(mappedBy="game",cascade = CascadeType.MERGE)
     private List<GamePlayer> gamePlayers;

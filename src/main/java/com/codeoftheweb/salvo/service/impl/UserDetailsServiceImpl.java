@@ -20,7 +20,6 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException{
-        System.out.println("inputname:"+email);
         Player player = playerRepository.findByEmailAddress(email);
 
         if (player != null) {
