@@ -92,7 +92,7 @@ public class SalvoApplication {
 				locations.add(new ShipLocations("B5"));
 				shipRepository.save(new Ship("Patrol Boat", gamePlayerRepo.getOne(1), locations));
 				locations.clear();
-				shipRepository.save(new Ship("carrier", gamePlayerRepo.getOne(1)));
+				shipRepository.save(new Ship("Carrier", gamePlayerRepo.getOne(1)));
 				shipRepository.save(new Ship("Battleship", gamePlayerRepo.getOne(1)));
 				shipRepository.save(new Ship("Patrol Boat", gamePlayerRepo.getOne(1)));
 				//-------------- game 1 - turn 1 ---------------//

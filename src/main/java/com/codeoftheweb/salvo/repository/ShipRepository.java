@@ -10,4 +10,8 @@ import java.util.List;
 public interface ShipRepository extends JpaRepository<Ship,Integer> {
     @Override
     public List<Ship> findAll();
+
+
+
+
 }

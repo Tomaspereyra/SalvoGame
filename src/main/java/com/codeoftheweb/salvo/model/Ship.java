@@ -1,5 +1,7 @@
 package com.codeoftheweb.salvo.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 import java.util.List;
 
@@ -11,6 +13,7 @@ public class Ship {
     private String type;
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name="gamePlayerID")
+    @JsonIgnore
     private GamePlayer gamePlayer;
     @ElementCollection
     @Column(name="location")
@@ -70,7 +73,9 @@ public class Ship {
     @Override
     public String toString() {
         return "Ship{" +
-                "type='" + type + '\'' +
+                "id=" + id +
+                ", type='" + type + '\'' +
+
                 ", locationsList=" + locationsList +
                 '}';
     }

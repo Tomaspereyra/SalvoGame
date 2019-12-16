@@ -1,6 +1,7 @@
 package com.codeoftheweb.salvo.RestController;
 
 import com.codeoftheweb.salvo.dto.LeaderboardDTO;
+import com.codeoftheweb.salvo.dto.ResponseDto;
 import com.codeoftheweb.salvo.dto.SalvoDTO;
 import com.codeoftheweb.salvo.model.*;
 import com.codeoftheweb.salvo.repository.GamePlayerRepository;
@@ -8,8 +9,8 @@ import com.codeoftheweb.salvo.repository.GameRepository;
 import com.codeoftheweb.salvo.repository.PlayerRepository;
 import com.codeoftheweb.salvo.repository.ShipRepository;
 import com.codeoftheweb.salvo.service.PlayerService;
-import com.fasterxml.jackson.core.JsonParser;
-import jdk.nashorn.internal.parser.JSONParser;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,12 +18,14 @@ import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-import sun.security.krb5.internal.ccache.FileCredentialsCache;
 
 
+import java.lang.reflect.Type;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+
+import static org.springframework.http.ResponseEntity.status;
 
 @RestController
 @RequestMapping("/api")
@@ -115,6 +118,36 @@ public class SalvoController {
             return player;
 
         }
+        @RequestMapping("/ship/save")
+        @PostMapping
+        public ResponseEntity<Map<String,Object>> saveShip(@RequestBody List<Ship> ships, Authentication auth){
+            ResponseDto responseDto = new ResponseDto();
+            Player player = getUserAuthenticated(auth);
+            if (player != null){
+            GamePlayer gamePlayer = gamePlayerRepository.findGamePlayerByPlayerParam(player.getId());
+            System.out.println("En base de datos:"+gamePlayer.getShips().size());
+
+                gamePlayer.getShips().forEach(ship-> {
+                    ship.setGamePlayer(gamePlayer);
+                    shipRepository.delete(ship);});
+
+               ships.forEach(ship -> {ship.setGamePlayer(gamePlayer);});
+               gamePlayer.setShips(ships);
+               gamePlayerRepository.save(gamePlayer);
+               responseDto.setCod("201");
+               responseDto.setStatus("Created");
+
+            }
+            else{
+                responseDto.setCod("401");
+                responseDto.setStatus("Unauthorized");
+            }
+
+            Map<String,Object> response = new HashMap<>();
+            response.put("data",responseDto.getData());
+            response.put("status",responseDto.getStatus());
+            return new ResponseEntity(response,HttpStatus.OK);
+        }
         @RequestMapping("/leaderboard")
         public List<Map<String,Object>>getLeaderBoard(){
             List<Map<String,Object>> leaderboardList = new ArrayList<>();
@@ -140,15 +173,15 @@ public class SalvoController {
         @PostMapping
         public ResponseEntity<Map<String,Object>> createdGame(Authentication auth){
             Player player = this.getUserAuthenticated(auth);
-            ResponseEntity response = ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Usuario no autorizado");
+            ResponseEntity response = status(HttpStatus.UNAUTHORIZED).body("Usuario no autorizado");
             if(player != null ){
                 try {
                     Game game1 = gameRepository.save(new Game(LocalDate.parse("2011-08-03T03:15:00", DateTimeFormatter.ISO_LOCAL_DATE_TIME), new ArrayList<GamePlayer>()));
                     gamePlayerRepository.save(new GamePlayer(game1, player, new Date(), shipRepository.findAll()));
-                    response = ResponseEntity.status(HttpStatus.CREATED).body(game1);
+                    response = status(HttpStatus.CREATED).body(game1);
                 }
                 catch(Exception e){
-                    response = ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al crear un juego");
+                    response = status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al crear un juego");
 
                 }
 
@@ -161,7 +194,7 @@ public class SalvoController {
         @PostMapping
         public ResponseEntity<Map<String,Object>> joinGame(@RequestBody Map<String,String> body,Authentication auth){
             System.out.println(body.get("id"));
-            ResponseEntity response = ResponseEntity.status(HttpStatus.OK).body(body);
+            ResponseEntity response = status(HttpStatus.OK).body(body);
             try{
             Game game = gameRepository.getOne(Integer.valueOf(body.get("id")));
             Player player = getUserAuthenticated(auth);
@@ -170,9 +203,35 @@ public class SalvoController {
 
             }
             catch (Exception e){
-                response = ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Ocurrio un error inesperado al intentar unirse a un juego");
+                response = status(HttpStatus.INTERNAL_SERVER_ERROR).body("Ocurrio un error inesperado al intentar unirse a un juego");
                                     }
             return response;
+
+        }
+
+        @RequestMapping("ship/{idgame}")
+        public ResponseEntity<Map<String, Object>> getShipByGamePlayer(@PathVariable Integer idgame, Authentication auth){
+            Game game = this.gameRepository.getOne(idgame);
+            Player player = this.getUserAuthenticated(auth);
+            Map<String,Object> response = new HashMap<>();
+            ResponseDto responsedto = new ResponseDto();
+            for(GamePlayer g : game.getGamePlayers()){
+                if(g.getPlayer().equals(player)){
+                    responsedto.setCod("200");
+                    responsedto.setData(g.getShips());
+                    response.put("data",g.getShips());
+
+                }
+            }
+            if(responsedto.getCod()!= "200"){
+                responsedto.setCod("502");
+                responsedto.setStatus("Player not found in current game");
+            }
+            System.out.println(responsedto.getData());
+            response.put("cod",responsedto.getCod());
+            response.put("data",responsedto.getData());
+            response.put("status",responsedto.getStatus());
+            return new ResponseEntity(response,HttpStatus.OK);
 
         }
 
@@ -221,7 +280,7 @@ public class SalvoController {
             gameMap.put("gamePlayers",gamePlayersList); // lo agrego al map general
             gameMap.put("ships",shipsList);
             gameMap.put("salvoes",salvoJson);
-           return  ResponseEntity.status(HttpStatus.OK).body(gameMap);
+           return  status(HttpStatus.OK).body(gameMap);
 
         }
 }

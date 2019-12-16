@@ -6,6 +6,7 @@ import org.hibernate.annotations.GenericGenerator;
 import javax.persistence.*;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 @Entity
@@ -107,11 +108,25 @@ public class GamePlayer {
         this.date = date;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof GamePlayer)) return false;
+        GamePlayer that = (GamePlayer) o;
+        return Objects.equals(id, that.id) &&
+                Objects.equals(game, that.game) &&
+                Objects.equals(player, that.player) &&
+                Objects.equals(date, that.date) &&
+                Objects.equals(ships, that.ships) &&
+                Objects.equals(salvoes, that.salvoes);
+    }
+
 
     @Override
     public String toString() {
         return "GamePlayer{" +
                 "id=" + id +
+
                 ", player=" + player +
                 ", date=" + date +
                 ", ships=" + ships +
