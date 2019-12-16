@@ -4,10 +4,7 @@ import com.codeoftheweb.salvo.dto.LeaderboardDTO;
 import com.codeoftheweb.salvo.dto.ResponseDto;
 import com.codeoftheweb.salvo.dto.SalvoDTO;
 import com.codeoftheweb.salvo.model.*;
-import com.codeoftheweb.salvo.repository.GamePlayerRepository;
-import com.codeoftheweb.salvo.repository.GameRepository;
-import com.codeoftheweb.salvo.repository.PlayerRepository;
-import com.codeoftheweb.salvo.repository.ShipRepository;
+import com.codeoftheweb.salvo.repository.*;
 import com.codeoftheweb.salvo.service.PlayerService;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -42,9 +39,14 @@ public class SalvoController {
         private ShipRepository shipRepository;
 
         @Autowired
+        private SalvoRepository salvoRepository;
+
+        @Autowired
         private PlayerService playerService;
         @Autowired
         private PasswordEncoder passwordEncoder;
+        @Autowired
+        private SalvoLocationsRepository salvoLocationsRepository;
 
         @RequestMapping("/players")
         @PostMapping
@@ -125,7 +127,6 @@ public class SalvoController {
             Player player = getUserAuthenticated(auth);
             if (player != null){
             GamePlayer gamePlayer = gamePlayerRepository.findGamePlayerByPlayerParam(player.getId());
-            System.out.println("En base de datos:"+gamePlayer.getShips().size());
 
                 gamePlayer.getShips().forEach(ship-> {
                     ship.setGamePlayer(gamePlayer);
@@ -147,6 +148,53 @@ public class SalvoController {
             response.put("data",responseDto.getData());
             response.put("status",responseDto.getStatus());
             return new ResponseEntity(response,HttpStatus.OK);
+        }
+        @RequestMapping("/salvo/save")
+        @PostMapping
+        public ResponseEntity<Map<String,Object>> saveSalvoes(@RequestBody List<Salvo> salvoes, Authentication auth){
+            ResponseDto responseDto = new ResponseDto();
+            Player player = getUserAuthenticated(auth);
+            if (player != null){
+                GamePlayer gamePlayer = gamePlayerRepository.findGamePlayerByPlayerParam(player.getId());
+                gamePlayer.getSalvoes().forEach(salvo->{
+                    salvo.setGamePlayer(gamePlayer);
+                    salvo.getSalvoLocations().forEach(salvoLoc->{
+                        salvoLocationsRepository.delete(salvoLoc);
+                    });
+                    salvoRepository.delete(salvo);});
+
+                salvoes.forEach(salvo->{
+                    salvo.setGamePlayer(gamePlayer);
+                    salvoRepository.save(salvo);
+                    salvo.getSalvoLocations().forEach(salvoLoc->{
+                        salvoLoc.setSalvo(salvo);
+                        this.salvoLocationsRepository.save(salvoLoc);
+                    });
+
+
+                });
+
+                gamePlayer.setSalvoes(salvoes);
+
+
+
+                gamePlayerRepository.save(gamePlayer);
+                responseDto.setCod("201");
+                responseDto.setStatus("Created");
+
+
+
+            }else{
+                responseDto.setCod("401");
+                responseDto.setStatus("Unauthorized");
+            }
+            Map<String,Object> response = new HashMap<>();
+            response.put("data",responseDto.getData());
+            response.put("status",responseDto.getStatus());
+
+            return new ResponseEntity(response,HttpStatus.OK);
+
+
         }
         @RequestMapping("/leaderboard")
         public List<Map<String,Object>>getLeaderBoard(){
@@ -228,6 +276,31 @@ public class SalvoController {
                 responsedto.setStatus("Player not found in current game");
             }
             System.out.println(responsedto.getData());
+            response.put("cod",responsedto.getCod());
+            response.put("data",responsedto.getData());
+            response.put("status",responsedto.getStatus());
+            return new ResponseEntity(response,HttpStatus.OK);
+
+        }
+        @RequestMapping("/salvo/{idgame}")
+        public ResponseEntity<Map<String,Object>> getSalvoByGamePlayer(@PathVariable Integer idgame, Authentication auth){
+
+
+           Game game = this.gameRepository.getOne(idgame);
+            Player player = this.getUserAuthenticated(auth);
+            Map<String,Object> response = new HashMap<>();
+            ResponseDto responsedto = new ResponseDto();
+            for(GamePlayer g : game.getGamePlayers()){
+                if(g.getPlayer().equals(player)){
+                    responsedto.setCod("200");
+                    responsedto.setData(g.getSalvoes());
+                }
+            }
+            if(responsedto.getCod()!= "200"){
+                responsedto.setCod("502");
+                responsedto.setStatus("Player not found in current game");
+            }
+
             response.put("cod",responsedto.getCod());
             response.put("data",responsedto.getData());
             response.put("status",responsedto.getStatus());
